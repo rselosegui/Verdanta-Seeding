@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verdanta | Green Infrastructure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Variables & Reset */
+    :root {
+      --color-bg: #fcf9f5;
+      --color-primary: #0F6E56;
+      --color-accent: #4DB891;
+      --color-dark: #094032;
+      --color-light: #ffffff;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body: 'Jost', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-dark);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      cursor: none; /* custom cursor */
+    }
+
+    /* RTL Support */
+    html[dir="rtl"] {
+      text-align: right;
+    }
+    html[dir="rtl"] .hero-stats {
+      border-left: none;
+      border-right: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    /* Typography */
+    h1, h2, h3, h4, .font-display {
+      font-family: var(--font-display);
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    h1 {
+      font-size: 4rem;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    h3 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+      color: #334c44;
+    }
+
+    /* Progress Bar */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background-color: var(--color-accent);
+      width: 0%;
+      z-index: 10000;
+      transition: width 0.1s;
+    }
+
+    /* Custom Cursor */
+    .cursor-dot {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      display: none;
+    }
+    .cursor-ring {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      display: none;
+    }
+    
+    @media (pointer: fine) {
+      .cursor-dot, .cursor-ring { display: block; }
+      body, a, button, input, select, textarea { cursor: none !important; }
+    }
+
+    .cursor-leaf {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      color: var(--color-primary);
+      transform: translate(-4px, -4px) rotate(-90deg); /* points leaf tip to top-left */
+      transition: transform 0.2s ease, filter 0.2s ease;
+      filter: drop-shadow(1px 2px 3px rgba(9, 64, 50, 0.3));
+    }
+
+    .cursor-dot.cursor-hover .cursor-leaf {
+      transform: translate(-4px, -4px) rotate(-105deg) scale(1.2);
+      color: var(--color-accent);
+      filter: drop-shadow(2px 4px 6px rgba(77, 184, 145, 0.4));
+    }
+
+    .cursor-glow {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      background-color: var(--color-primary);
+      opacity: 0.15;
+      border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+      transform: translate(-50%, -50%);
+      animation: organicBlob 8s linear infinite;
+      filter: blur(4px);
+      transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+    }
+    
+    .cursor-ring.cursor-hover .cursor-glow {
+      width: 72px;
+      height: 72px;
+      opacity: 0.2;
+      background-color: var(--color-accent);
+    }
+
+    @keyframes organicBlob {
+      0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: translate(-50%, -50%) rotate(0deg); }
+      50% { border-radius: 60% 40% 30% 70% / 60% 40% 50% 50%; transform: translate(-50%, -50%) rotate(180deg); }
+      100% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 1.5rem 0;
+      background-color: var(--color-bg);
+      z-index: 1000;
+      transition: padding 0.3s, border-bottom 0.3s;
+      border-bottom: 1px solid transparent;
+    }
+
+    .navbar.scrolled {
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(15, 110, 86, 0.1);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2.5rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--color-dark);
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--color-accent);
+    }
+
+    /* Reset button styles inside nav */
+    .lang-switcher button {
+      background: none;
+      border: none;
+      cursor: none;
+      font-family: var(--font-body);
+      font-weight: 500;
+      color: var(--color-dark);
+      margin-left: 1rem;
+      opacity: 0.5;
+      transition: opacity 0.3s;
+    }
+    
+    html[dir="rtl"] .lang-switcher button {
+      margin-left: 0;
+      margin-right: 1rem;
+    }
+
+    .lang-switcher button.active, .lang-switcher button:hover {
+      opacity: 1;
+      color: var(--color-primary);
+    }
+
+    /* Layout & Utilities */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 2rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 3rem;
+    }
+
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); align-items: stretch; }
+
+    /* Buttons */
+    .btn {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid var(--color-primary);
+      transition: all 0.3s ease;
+      cursor: none;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: var(--color-light);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--color-dark);
+      border-color: var(--color-dark);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--color-primary);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--color-primary);
+      color: var(--color-light);
+    }
+
+    /* Reveal Animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+    }
+    
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Hero */
+    .hero {
+      padding-top: 10rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-content {
+      align-items: center;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .hero-stats {
+      background-color: var(--color-primary);
+      color: var(--color-light);
+      padding: 4rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .stat-box h4 {
+      color: var(--color-accent);
+      font-size: 3.5rem;
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+
+    .stat-box p {
+      color: var(--color-bg);
+      font-size: 0.95rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    /* Sections Shared */
+    .section-light {
+      background-color: var(--color-bg);
+    }
+
+    .section-white {
+      background-color: #ffffff;
+    }
+    
+    .text-center { text-align: center; }
+
+    /* Cards */
+    .card {
+      background: var(--color-bg);
+      padding: 3rem 2rem;
+      border-top: 4px solid var(--color-primary);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .section-light .card {
+      background: #ffffff;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 40px rgba(15, 110, 86, 0.08);
+    }
+
+    /* VS Container */
+    .vs-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .vs-box {
+      padding: 2rem;
+      border: 1px solid rgba(15, 110, 86, 0.1);
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      transition: background 0.3s;
+    }
+    
+    .vs-box:hover {
+      background-color: rgba(15, 110, 86, 0.03);
+    }
+    
+    .vs-icon {
+      font-size: 2rem;
+      color: var(--color-primary);
+    }
+    
+    .vs-hydro {
+      border-color: var(--color-accent);
+      background-color: rgba(77, 184, 145, 0.05);
+    }
+    
+    .vs-hydro:hover {
+      background-color: rgba(77, 184, 145, 0.1);
+    }
+
+    /* Formula List */
+    .formula-list {
+      list-style: none;
+      counter-reset: formula-counter;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .formula-item {
+      position: relative;
+      padding: 2rem 0;
+      padding-left: 4rem;
+      border-bottom: 1px solid rgba(15, 110, 86, 0.1);
+      transition: background 0.3s, padding-left 0.3s;
+    }
+
+    html[dir="rtl"] .formula-item {
+      padding-left: 0;
+      padding-right: 4rem;
+    }
+
+    .formula-item:hover {
+      background-color: rgba(15, 110, 86, 0.02);
+      padding-left: 4.5rem;
+    }
+    
+    html[dir="rtl"] .formula-item:hover {
+      padding-left: 0;
+      padding-right: 4.5rem;
+    }
+
+    .formula-item::before {
+      counter-increment: formula-counter;
+      content: "0" counter(formula-counter);
+      position: absolute;
+      left: 0;
+      top: 2.2rem;
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+    
+    html[dir="rtl"] .formula-item::before {
+      left: auto;
+      right: 0;
+    }
+
+    /* Highlight biochar */
+    .highlight-item {
+      border-bottom: 2px solid var(--color-primary);
+    }
+    .highlight-item h3 {
+      color: var(--color-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Form */
+    .contact-form {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 1.2rem;
+      background: transparent;
+      border: 1px solid rgba(15, 110, 86, 0.2);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      color: var(--color-dark);
+      transition: border-color 0.3s;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--color-primary);
+    }
+
+    .contact-box {
+      background: var(--color-primary);
+      color: var(--color-bg);
+      padding: 4rem;
+    }
+
+    .contact-box h2 {
+      color: var(--color-light);
+    }
+
+    .contact-box p {
+      color: var(--color-bg);
+      opacity: 0.9;
+    }
+    
+    .success-msg {
+      display: none;
+      padding: 1.5rem;
+      background-color: rgba(77, 184, 145, 0.1);
+      border: 1px solid var(--color-accent);
+      color: var(--color-primary);
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--color-dark);
+      color: var(--color-bg);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    
+    footer .logo {
+      color: var(--color-bg);
+    }
+    
+    footer p {
+      color: rgba(252, 249, 245, 0.6);
+      margin-bottom: 0;
+      margin-top: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .cursor-dot, .cursor-ring { display: none !important; }
+      body, a, button, input, select, textarea { cursor: auto !important; }
+      
+      .container { padding: 4rem 1.5rem; }
+      
+      h1 { font-size: 2.8rem; }
+      h2 { font-size: 2.2rem; }
+      .logo { font-size: 1.8rem; }
+      
+      .grid-2, .grid-3, .hero-stats { grid-template-columns: 1fr; }
+      
+      .nav-links { display: none; } /* Simplified mobile nav for plain HTML */
+      .nav-container { justify-content: space-between; padding: 1rem 1.5rem; }
+      .lang-switcher { position: relative; right: auto; left: auto; display: flex; align-items: center; gap: 0.75rem; }
+      .lang-switcher button { margin: 0; font-size: 0.9rem; }
+      
+      html[dir="rtl"] .lang-switcher { right: auto; left: auto; }
+      html[dir="rtl"] .lang-switcher button { margin: 0; }
+      
+      .hero { padding-top: 8rem; text-align: center; }
+      .hero-btns { justify-content: center; }
+      
+      .formula-item { padding-left: 0; padding-top: 3.5rem; }
+      .formula-item::before { top: 1rem; left: 0; }
+      .formula-item:hover { padding-left: 0; }
+      
+      html[dir="rtl"] .formula-item { padding-right: 0; }
+      html[dir="rtl"] .formula-item::before { right: 0; }
+      html[dir="rtl"] .formula-item:hover { padding-right: 0; }
+
+      .card { padding: 2rem 1.5rem; }
+      .hero-stats { padding: 3rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scroll-progress" id="scrollProgress"></div>
+  
+  <div class="cursor-dot" id="cursorDot">
+    <svg class="cursor-leaf" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+      <path d="M2 22l7-7"/>
+    </svg>
+  </div>
+  <div class="cursor-ring" id="cursorRing">
+    <div class="cursor-glow"></div>
+  </div>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="logo">Verdanta</a>
+      <ul class="nav-links">
+        <li><a href="#about" data-i18n="nav_about" class="hover-target">About</a></li>
+        <li><a href="#formula" data-i18n="nav_formula" class="hover-target">Formula</a></li>
+        <li><a href="#services" data-i18n="nav_services" class="hover-target">Services</a></li>
+        <li><a href="#sustainability" data-i18n="nav_sustainability" class="hover-target">Sustainability</a></li>
+      </ul>
+      <div class="lang-switcher">
+        <button onclick="setLang('en')" class="hover-target lang-btn active" data-lang="en">EN</button>
+        <button onclick="setLang('ar')" class="hover-target lang-btn" data-lang="ar">عربي</button>
+        <button onclick="setLang('es')" class="hover-target lang-btn" data-lang="es">ES</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero section-light">
+    <div class="container">
+      <div class="grid grid-2 hero-content reveal">
+        <div class="hero-text">
+          <h1 data-i18n="hero_title">Revealing the Green Potential of the Gulf</h1>
+          <p data-i18n="hero_desc">Verdanta specialises in advanced hydroseeding for arid terrain. We establish vegetation 10x faster than manual seeding, using a proprietary formula engineered for the UAE.</p>
+          <div class="hero-btns">
+            <a href="#contact" class="btn btn-primary hover-target" data-i18n="cta_contact">Contact Us</a>
+            <a href="#about" class="btn btn-outline hover-target" data-i18n="cta_method">Our Method</a>
+          </div>
+        </div>
+        <div class="hero-stats reveal">
+          <div class="stat-box hover-target">
+            <h4 data-i18n="stat1_val">10x</h4>
+            <p data-i18n="stat1_label">Faster Growth</p>
+          </div>
+          <div class="stat-box hover-target">
+            <h4 data-i18n="stat2_val">40%</h4>
+            <p data-i18n="stat2_label">Better Water Retention</p>
+          </div>
+          <div class="stat-box hover-target">
+            <h4 data-i18n="stat3_val">5</h4>
+            <p data-i18n="stat3_label">Component Formula</p>
+          </div>
+          <div class="stat-box hover-target">
+            <h4 data-i18n="stat4_val">100%</h4>
+            <p data-i18n="stat4_label">Native & Sustainable</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="section-white">
+    <div class="container">
+      <div class="grid grid-2 reveal">
+        <div>
+          <h2 data-i18n="about_title" style="text-align: left;">What is Hydroseeding?</h2>
+          <p data-i18n="about_desc">Hydroseeding is a planting process that uses a slurry of seed, mulch, fertiliser, and water. It is sprayed over prepared ground to establish vegetation rapidly, offering superior erosion control and germination rates compared to traditional methods, especially in the harsh Gulf environment.</p>
+        </div>
+        <div>
+          <h3 data-i18n="vs_title">The Verdanta Advantage</h3>
+          <div class="vs-container">
+            <div class="vs-box hover-target">
+              <div class="vs-icon">✕</div>
+              <p data-i18n="vs_traditional" style="margin:0;">Manual Seeding: Slow germination, vulnerable to wind erosion, high water evaporation.</p>
+            </div>
+            <div class="vs-box vs-hydro hover-target">
+              <div class="vs-icon">✓</div>
+              <p data-i18n="vs_hydro" style="margin:0; font-weight: 500;">Hydroseeding: Rapid establishment, locked-in moisture, protected from elements.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-light">
+    <div class="container">
+      <h2 data-i18n="challenge_title" class="reveal">The Gulf Challenge</h2>
+      <div class="grid grid-3 reveal">
+        <div class="card hover-target">
+          <h3 data-i18n="ch1_title">Extreme Salinity</h3>
+          <p data-i18n="ch1_desc">Coastal and inland soils often contain high salt levels that prevent traditional seeds from germinating. We use native halophyte seeds adapted to thrive here.</p>
+        </div>
+        <div class="card hover-target">
+          <h3 data-i18n="ch2_title">Intense Heat</h3>
+          <p data-i18n="ch2_desc">Surface temperatures can scorch emerging seedlings. Our wood fibre mulch acts as a protective thermal blanket.</p>
+        </div>
+        <div class="card hover-target">
+          <h3 data-i18n="ch3_title">Nutrient-Poor Soil</h3>
+          <p data-i18n="ch3_desc">Desert sand lacks the organic matter needed for robust root systems. We infuse our mix with essential organic inputs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="formula" class="section-white">
+    <div class="container reveal">
+      <h2 data-i18n="formula_title">Our Proprietary Formula</h2>
+      <div style="text-align: center; max-width: 600px; margin: 0 auto 3rem;">
+        <p>Engineered specifically for the UAE, our 5-component slurry goes beyond standard hydroseeding to ensure lasting vitality in arid conditions.</p>
+      </div>
+      
+      <ul class="formula-list">
+        <li class="formula-item hover-target">
+          <h3 data-i18n="f1_title">Native Halophyte Seeds</h3>
+          <p data-i18n="f1_desc" style="margin:0;">Sourced locally, these seeds naturally tolerate high salinity and require less water.</p>
+        </li>
+        <li class="formula-item hover-target">
+          <h3 data-i18n="f2_title">Wood Fibre Mulch</h3>
+          <p data-i18n="f2_desc" style="margin:0;">Creates a micro-climate for the seeds, protecting them from heat and retaining moisture.</p>
+        </li>
+        <li class="formula-item hover-target">
+          <h3 data-i18n="f3_title">Guar Biopolymer</h3>
+          <p data-i18n="f3_desc" style="margin:0;">A natural tackifier that binds the mix to the soil, preventing wind and water erosion.</p>
+        </li>
+        <li class="formula-item hover-target">
+          <h3 data-i18n="f4_title">Slow-Release Fertiliser</h3>
+          <p data-i18n="f4_desc" style="margin:0;">Provides a steady stream of nutrients critical for early-stage root development.</p>
+        </li>
+        <li class="formula-item highlight-item hover-target">
+          <h3 data-i18n="f5_title">Date Palm Biochar ✦</h3>
+          <p data-i18n="f5_desc" style="margin:0; font-weight: 500;">Our secret ingredient. Upcycled local UAE waste that improves soil water retention by up to 40%.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="services" class="section-light">
+    <div class="container">
+      <h2 data-i18n="services_title" class="reveal">Our Services</h2>
+      <div class="grid grid-3 reveal">
+        <div class="card hover-target">
+          <h3 data-i18n="s1_title">Municipal & Government</h3>
+          <p data-i18n="s1_desc">Large-scale revegetation for highway verges, public parks, and urban greening programmes.</p>
+        </div>
+        <div class="card hover-target">
+          <h3 data-i18n="s2_title">Private Sector & Developers</h3>
+          <p data-i18n="s2_desc">Efficient landscaping for new developments, resorts, and commercial properties.</p>
+        </div>
+        <div class="card hover-target">
+          <h3 data-i18n="s3_title">Residential Communities</h3>
+          <p data-i18n="s3_desc">Premium hydroseeding including native repellent plants and biological larvicide to combat mosquito problems.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sustainability" class="section-white">
+    <div class="container reveal">
+      <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+        <h2 data-i18n="sust_title">Our Commitment to Sustainability</h2>
+        <p data-i18n="sust_desc" style="font-size: 1.25rem;">At Verdanta, environmental stewardship is woven into our DNA. We utilise Treated Sewage Effluent (TSE) water, reducing the strain on desalination plants. Our inputs are organic, and by incorporating date palm biochar, we champion a circular economy that keeps local agricultural waste out of landfills.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="section-light" style="padding-bottom: 0;">
+    <div class="grid grid-2" style="gap: 0; align-items: stretch;">
+      <div class="contact-box reveal">
+        <div style="max-width: 400px; margin-left: auto; padding-right: 2rem;">
+          <h2 data-i18n="contact_title" style="text-align: left;">Get in Touch</h2>
+          <p data-i18n="contact_location">Location: Dubai, UAE</p>
+          <p data-i18n="contact_email">Email: hello@verdanta.ae</p>
+          <br>
+          <p style="font-size: 0.9rem; opacity: 0.7;">We serve the entire UAE and larger Gulf region for commercial and municipal projects.</p>
+        </div>
+      </div>
+      <div class="section-white reveal" style="padding: 4rem;">
+        <form class="contact-form" id="contactForm">
+          <div class="grid grid-2" style="gap: 1.5rem;">
+            <input type="text" id="formName" placeholder="Name" required class="hover-target" data-i18n-placeholder="form_name">
+            <input type="email" id="formEmail" placeholder="Email Address" required class="hover-target" data-i18n-placeholder="form_email">
+          </div>
+          <input type="text" id="formOrg" placeholder="Organisation" class="hover-target" data-i18n-placeholder="form_org">
+          <select id="formService" class="hover-target" required>
+            <option value="" disabled selected data-i18n="form_service">Service of Interest</option>
+            <option value="Municipal" data-i18n="form_service_mun">Municipal & Government</option>
+            <option value="Private" data-i18n="form_service_priv">Private Sector</option>
+            <option value="Residential" data-i18n="form_service_res">Residential Communities</option>
+          </select>
+          <textarea rows="4" id="formMsg" placeholder="Message" required class="hover-target" data-i18n-placeholder="form_msg"></textarea>
+          <button type="submit" class="btn btn-primary hover-target" data-i18n="form_send" style="width: 100%;">Send Message</button>
+          
+          <div id="successMsg" class="success-msg" data-i18n="form_success">
+            Thank you for reaching out. We will get back to you shortly.
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container reveal" style="padding: 0;">
+      <a href="#" class="logo">Verdanta</a>
+      <p data-i18n="footer_tagline">Green infrastructure for a resilient future.</p>
+      <p style="opacity: 0.4; font-size: 0.85rem; margin-top: 2rem;">&copy; 2026 Verdanta. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // i18n Translations
+    const i18n = {
+      en: {
+        nav_about: "About", nav_formula: "Formula", nav_services: "Services", nav_sustainability: "Sustainability", nav_contact: "Contact",
+        hero_title: "Establish Vegetation 10x Faster in the UAE's Harshest Climates",
+        hero_desc: "Verdanta delivers advanced hydroseeding engineered specifically for the Gulf. Our proprietary organic formula transforms saline, arid terrain into sustainable green infrastructure—<strong>saving you time, water, and resources.</strong>",
+        cta_contact: "Request a Project Quote", cta_method: "See How It Works",
+        stat1_val: "10x", stat1_label: "Faster Growth", stat2_val: "40%", stat2_label: "Better Water Retention", stat3_val: "5", stat3_label: "Component Formula", stat4_val: "100%", stat4_label: "Native & Sustainable",
+        about_title: "How We Transform Arid Land",
+        about_desc: "We replace slow, inefficient manual seeding with <strong>advanced hydroseeding</strong>. By spraying a nutrient-rich slurry directly onto the soil, we <strong>lock in moisture and protect seeds from extreme heat</strong>, guaranteeing rapid, uniform growth even in depleted soils.",
+        vs_title: "The Verdanta Advantage",
+        vs_traditional: "Manual Seeding: Wastes water, blows away in the wind, and suffers from low germination rates.",
+        vs_hydro: "Our Hydroseeding: Locks in moisture, prevents erosion instantly, and delivers rapid, even coverage.",
+        challenge_title: "Overcoming the Gulf's Toughest Environments",
+        ch1_title: "Extreme Salinity", ch1_desc: "Coastal and inland soils often contain high salt levels that prevent traditional seeds from germinating.<br><br><strong>Solution:</strong> We use native halophyte seeds adapted to thrive here.",
+        ch2_title: "Intense Heat", ch2_desc: "Surface temperatures can scorch emerging seedlings.<br><br><strong>Solution:</strong> Our wood fibre mulch acts as a protective thermal blanket.",
+        ch3_title: "Nutrient-Poor Soil", ch3_desc: "Desert sand lacks the organic matter needed for robust root systems.<br><br><strong>Solution:</strong> We infuse our mix with essential organic inputs.",
+        formula_title: "The 5-Component Formula That Drives 10x Growth",
+        f1_title: "Native Halophyte Seeds", f1_desc: "<strong>Sourced locally</strong>, these seeds naturally tolerate high salinity and require less water.",
+        f2_title: "Wood Fibre Mulch", f2_desc: "<strong>Creates a micro-climate</strong> for the seeds, protecting them from heat and retaining moisture.",
+        f3_title: "Guar Biopolymer", f3_desc: "<strong>A natural tackifier</strong> that binds the mix to the soil, preventing wind and water erosion.",
+        f4_title: "Slow-Release Fertiliser", f4_desc: "<strong>Provides a steady stream</strong> of nutrients critical for early-stage root development.",
+        f5_title: "Date Palm Biochar ✦", f5_desc: "<strong>Our secret ingredient.</strong> Upcycled local UAE waste that improves soil water retention by up to 40%.",
+        services_title: "Our Services",
+        s1_title: "Municipal & Government", s1_desc: "<strong>Large-scale revegetation</strong> for highway verges, public parks, and urban greening programmes.",
+        s2_title: "Private Sector & Developers", s2_desc: "<strong>Efficient rapid landscaping</strong> for new developments, resorts, and commercial properties.",
+        s3_title: "Residential Communities", s3_desc: "<strong>Premium hydroseeding</strong> including native repellent plants and biological larvicide to combat mosquito problems sustainably.",
+        sust_title: "Our Commitment to Sustainability",
+        sust_desc: "At Verdanta, environmental stewardship is woven into our DNA.<br><br><strong>• Water Conservation:</strong> We utilise Treated Sewage Effluent (TSE) water, reducing the strain on desalination plants.<br><strong>• Circular Economy:</strong> Our organic inputs and upcycled date palm biochar keep local agricultural waste out of landfills.",
+        contact_title: "Get in Touch",
+        contact_location: "Location: Dubai, UAE", contact_email: "Email: hello@verdanta.ae",
+        form_name: "Name", form_email: "Email Address", form_org: "Organisation", form_service: "Service of Interest", form_service_mun: "Municipal & Government", form_service_priv: "Private Sector", form_service_res: "Residential Communities", form_msg: "Message", form_send: "Request Your Consultation", form_sending: "Sending...", form_success: "Thank you for reaching out. We will get back to you shortly.",
+        footer_tagline: "Green infrastructure for a resilient future."
+      },
+      ar: {
+        nav_about: "من نحن", nav_formula: "تركيبتنا", nav_services: "خدماتنا", nav_sustainability: "الاستدامة", nav_contact: "اتصل بنا",
+        hero_title: "تأسيس الغطاء النباتي أسرع بـ 10 مرات في أقسى مناخات الإمارات",
+        hero_desc: "تقدم فيردانتا تقنية استزراع مائي متقدمة مصممة خصيصاً للخليج. تركيبتنا العضوية الخاصة تحول الأراضي القاحلة والمالحة إلى بنية تحتية خضراء مستدامة، <strong>مما يوفر لك الوقت والمياه والموارد.</strong>",
+        cta_contact: "طلب تسعير للمشروع", cta_method: "اكتشف كيف نعمل",
+        stat1_val: "10x", stat1_label: "نمو أسرع", stat2_val: "40%", stat2_label: "احتفاظ أفضل بالمياه", stat3_val: "5", stat3_label: "مكونات في التركيبة", stat4_val: "100%", stat4_label: "مستدامة ومحلية",
+        about_title: "كيف نحول الأراضي القاحلة",
+        about_desc: "نستبدل البذر اليدوي البطيء وغير الفعال <strong>بالاستزراع المائي المتقدم</strong>. من خلال رش مزيج غني بالمغذيات مباشرة على التربة، <strong>نحتفظ بالرطوبة ونحمي البذور من الحرارة الشديدة</strong>، مما يضمن نمواً سريعاً وموحداً حتى في التربة المستنزفة.",
+        vs_title: "ميزة فيردانتا",
+        vs_traditional: "البذر اليدوي: يهدر المياه، يتطاير مع الرياح، ويعاني من معدلات إنبات منخفضة.",
+        vs_hydro: "استزراعنا المائي: يحبس الرطوبة، يمنع التآكل فوراً، ويقدم تغطية سريعة ومتساوية.",
+        challenge_title: "التغلب على أقسى بيئات الخليج",
+        ch1_title: "الملوحة الشديدة", ch1_desc: "غالبًا ما تحتوي التربة الساحلية والداخلية على مستويات عالية من الأملاح تمنع البذور من النمو.<br><br><strong>الحل:</strong> نستخدم بذور نباتات ملحية محلية تتكيف للنمو هنا.",
+        ch2_title: "الحرارة الشديدة", ch2_desc: "يمكن أن تحرق درجات الحرارة السطحية الشتلات الناشئة.<br><br><strong>الحل:</strong> تعمل نشارة ألياف الخشب كبطانية حرارية واقية.",
+        ch3_title: "تربة فقيرة بالمغذيات", ch3_desc: "تفتقر رمال الصحراء إلى المواد العضوية اللازمة لأنظمة الجذور القوية.<br><br><strong>الحل:</strong> ندمج مزيجنا مع المدخلات العضوية الأساسية.",
+        formula_title: "التركيبة الخماسية التي تضاعف النمو بـ 10 مرات",
+        f1_title: "بذور نباتات ملحية محلية", f1_desc: "<strong>نحصل عليها محلياً</strong>، وتتحمل الملوحة العالية بشكل طبيعي وتتطلب مياهًا أقل.",
+        f2_title: "نشارة ألياف الخشب", f2_desc: "<strong>تخلق مناخًا محليًا</strong> للبذور، وتحميها من الحرارة وتحتفظ بالرطوبة.",
+        f3_title: "بوليمر حيوي (غوار)", f3_desc: "<strong>مادة ربط طبيعية</strong> تمسك المزيج بالتربة، وتمنع التآكل بفعل الرياح والمياه.",
+        f4_title: "سماد بطيء التحرر", f4_desc: "<strong>يوفر تدفقًا مستمرًا</strong> للمغذيات الحيوية لتطوير الجذور في المراحل المبكرة.",
+        f5_title: "الفحم الحيوي لنخيل التمر ✦", f5_desc: "<strong>مكوننا السري.</strong> نفايات محلية معاد تدويرها تحسن احتفاظ التربة بالمياه بنسبة تصل إلى 40٪.",
+        services_title: "خدماتنا",
+        s1_title: "البلديات والحكومة", s1_desc: "<strong>إعادة غطاء نباتي واسع النطاق</strong> لحواف الطرق السريعة والمتنزهات العامة وبرامج التخضير الحضري.",
+        s2_title: "القطاع الخاص والمطورون", s2_desc: "<strong>تنسيق حدائق فعال وسريع</strong> للتطورات الجديدة والمنتجعات والممتلكات التجارية.",
+        s3_title: "المجتمعات السكنية", s3_desc: "<strong>استزراع مائي متميز</strong> يشمل نباتات طاردة للبعوض ومبيدات يرقات بيولوجية لمكافحة المشكلة بشكل مستدام.",
+        sust_title: "التزامنا بالاستدامة",
+        sust_desc: "في فيردانتا، الاستدامة البيئية متأصلة في حمضنا النووي.<br><br><strong>• الحفاظ على المياه:</strong> نستخدم مياه الصرف الصحي المعالجة (TSE)، للتقليل من الضغط على محطات التحلية.<br><strong>• الاقتصاد الدائري:</strong> من خلال دمج الفحم الحيوي، نبقي النفايات الزراعية المحلية خارج مدافن النفايات.",
+        contact_title: "تواصل معنا",
+        contact_location: "الموقع: دبي، الإمارات العربية المتحدة", contact_email: "البريد الإلكتروني: hello@verdanta.ae",
+        form_name: "الاسم", form_email: "البريد الإلكتروني", form_org: "المؤسسة", form_service: "الخدمة المطلوبة", form_service_mun: "البلديات والحكومة", form_service_priv: "القطاع الخاص", form_service_res: "المجتمعات السكنية", form_msg: "الرسالة", form_send: "اطلب استشارتك الآن", form_sending: "جاري الإرسال...", form_success: "شكراً لتواصلك معنا. سنقوم بالرد عليك قريباً.",
+        footer_tagline: "بنية تحتية خضراء لمستقبل مرن."
+      },
+      es: {
+        nav_about: "Nosotros", nav_formula: "Fórmula", nav_services: "Servicios", nav_sustainability: "Sostenibilidad", nav_contact: "Contacto",
+        hero_title: "Establece Vegetación 10 Veces Más Rápido en los Climas Más Extremos de los EAU",
+        hero_desc: "Verdanta ofrece hidrosembrado avanzado diseñado específicamente para el Golfo. Nuestra fórmula orgánica convierte terrenos áridos y salinos en infraestructura verde sostenible, <strong>ahorrando tiempo, agua y recursos.</strong>",
+        cta_contact: "Solicitar Presupuesto", cta_method: "Descubre Cómo Funciona",
+        stat1_val: "10x", stat1_label: "Crecimiento Rápido", stat2_val: "40%", stat2_label: "Mayor Retención de Agua", stat3_val: "5", stat3_label: "Componentes en la Fórmula", stat4_val: "100%", stat4_label: "Nativo y Sostenible",
+        about_title: "Cómo Transformamos Tierras Áridas",
+        about_desc: "Reemplazamos la siembra manual por <strong>hidrosembrado avanzado</strong>. Al rociar una mezcla rica en nutrientes directamente sobre el suelo, <strong>retenemos la humedad y protegemos las semillas del calor extremo</strong>, garantizando un crecimiento rápido y uniforme en suelos agotados.",
+        vs_title: "La Ventaja Verdanta",
+        vs_traditional: "Siembra Manual: Desperdicia agua, se vuela con el viento y sufre de bajas tasas de germinación.",
+        vs_hydro: "Nuestro Hidrosembrado: Retiene la humedad, previene la erosión al instante y ofrece una cobertura rápida y uniforme.",
+        challenge_title: "Superando los Entornos Más Difíciles del Golfo",
+        ch1_title: "Salinidad Extrema", ch1_desc: "Los suelos costeros e interiores suelen contener altos niveles de sal que impiden la germinación.<br><br><strong>Solución:</strong> Utilizamos semillas de halófitas nativas adaptadas para prosperar aquí.",
+        ch2_title: "Calor Intenso", ch2_desc: "Las altas temperaturas pueden quemar las plántulas emergentes.<br><br><strong>Solución:</strong> Nuestro mantillo de fibra de madera actúa como una manta térmica protectora.",
+        ch3_title: "Suelo Pobre en Nutrientes", ch3_desc: "La arena del desierto carece de la materia orgánica necesaria.<br><br><strong>Solución:</strong> Infundimos nuestra mezcla con insumos orgánicos esenciales.",
+        formula_title: "La Fórmula de 5 Componentes que Impulsa un Crecimiento 10x Más Rápido",
+        f1_title: "Semillas de Halófitas Nativas", f1_desc: "<strong>De origen local</strong>, toleran naturalmente la alta salinidad y requieren menos agua.",
+        f2_title: "Mantillo de Fibra de Madera", f2_desc: "<strong>Crea un microclima</strong> para las semillas, protegiéndolas del calor y reteniendo la humedad.",
+        f3_title: "Biopolímero de Guar", f3_desc: "<strong>Un agente aglutinante natural</strong> que une la mezcla al suelo, previniendo la erosión.",
+        f4_title: "Fertilizante de Liberación Lenta", f4_desc: "<strong>Proporciona un flujo constante</strong> de nutrientes críticos para el desarrollo de las raíces.",
+        f5_title: "Bíocarbón de Palmera Datilera ✦", f5_desc: "<strong>Nuestro ingrediente secreto.</strong> Residuos locales reciclados que mejoran la retención de agua hasta en un 40%.",
+        services_title: "Nuestros Servicios",
+        s1_title: "Municipios y Gobierno", s1_desc: "<strong>Revegetación a gran escala</strong> para márgenes de carreteras, parques públicos y programas urbanos.",
+        s2_title: "Sector Privado y Desarrolladores", s2_desc: "<strong>Paisajismo eficiente y veloz</strong> para nuevos desarrollos, resorts y propiedades comerciales.",
+        s3_title: "Comunidades Residenciales", s3_desc: "<strong>Hidrosembrado premium</strong> que incluye plantas nativas repelentes y larvicida biológico para combatir mosquitos de forma sostenible.",
+        sust_title: "Nuestro Compromiso con la Sostenibilidad",
+        sust_desc: "La preservación ambiental está en nuestro ADN.<br><br><strong>• Conservación de Agua:</strong> Utilizamos agua tratada (TSE), reduciendo la presión sobre las desalinizadoras.<br><strong>• Economía Circular:</strong> Fomentamos la circularidad incorporando carbón vegetal de residuos de palmera datilera.",
+        contact_title: "Ponte en Contacto",
+        contact_location: "Ubicación: Dubái, EAU", contact_email: "Correo: hello@verdanta.ae",
+        form_name: "Nombre", form_email: "Correo Electrónico", form_org: "Organización", form_service: "Servicio de Interés", form_service_mun: "Municipios y Gobierno", form_service_priv: "Sector Privado", form_service_res: "Comunidades Residenciales", form_msg: "Mensaje", form_send: "Solicita tu Consulta", form_sending: "Enviando...", form_success: "Gracias por comunicarte. Te responderemos a la brevedad.",
+        footer_tagline: "Infraestructura verde para un futuro resiliente."
+      }
+    };
+
+    // Language Selection
+    function setLang(lang) {
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = lang;
+      
+      // Update buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+
+      // Update basic text
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) {
+          el.innerHTML = i18n[lang][key];
+        }
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (i18n[lang][key]) {
+          el.placeholder = i18n[lang][key];
+        }
+      });
+    }
+
+    // Custom Cursor
+    const cursorDot = document.getElementById('cursorDot');
+    const cursorRing = document.getElementById('cursorRing');
+    
+    let mouseX = 0, mouseY = 0;
+    let ringX = 0, ringY = 0;
+    
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursorDot.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
+    });
+
+    // Animate lagging ring
+    function animateRing() {
+      ringX += (mouseX - ringX) * 0.2;
+      ringY += (mouseY - ringY) * 0.2;
+      cursorRing.style.transform = `translate(${ringX}px, ${ringY}px)`;
+      requestAnimationFrame(animateRing);
+    }
+    requestAnimationFrame(animateRing);
+
+    // Add hover effect to interactive elements
+    document.querySelectorAll('.hover-target, a, button, input, select, textarea').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursorDot.classList.add('cursor-hover');
+        cursorRing.classList.add('cursor-hover');
+      });
+      el.addEventListener('mouseleave', () => {
+        cursorDot.classList.remove('cursor-hover');
+        cursorRing.classList.remove('cursor-hover');
+      });
+    });
+
+    // Scroll Progress & Navbar sticky
+    const scrollProgress = document.getElementById('scrollProgress');
+    const navbar = document.getElementById('navbar');
+    
+    window.addEventListener('scroll', () => {
+      const scrollPx = document.documentElement.scrollTop;
+      const winHeightPx = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (scrollPx / winHeightPx) * 100;
+      scrollProgress.style.width = scrolled + "%";
+
+      if (scrollPx > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Intersection Observer for Reveal Animations
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      root: null,
+      threshold: 0.15,
+      rootMargin: "0px"
+    });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    // Form submission
+    const contactForm = document.getElementById('contactForm');
+    const successMsg = document.getElementById('successMsg');
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
+    
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const lang = document.documentElement.lang || 'en';
+      submitBtn.innerText = i18n[lang]['form_sending'] || 'Sending...';
+      submitBtn.disabled = true;
+
+      // Simulate network request
+      setTimeout(() => {
+        contactForm.reset();
+        submitBtn.innerText = i18n[lang]['form_send'] || 'Send Message';
+        submitBtn.disabled = false;
+        successMsg.style.display = 'block';
+        setTimeout(() => {
+          successMsg.style.display = 'none';
+        }, 8000);
+      }, 1500);
+    });
+  </script>
+</body>
+</html>
